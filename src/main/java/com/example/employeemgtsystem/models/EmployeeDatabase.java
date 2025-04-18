@@ -190,18 +190,18 @@ public class EmployeeDatabase<T> {
 
     // ========== DISPLAY METHODS ==========
 
-    public void displayEmployees(List<Employee<T>> employeeList) {
-        if (employeeList.isEmpty()) {
-            System.out.println("No employees found.");
-            return;
-        }
-
-        System.out.println("\nEMPLOYEE LIST:");
-        System.out.println("-".repeat(120));
-        employeeList.forEach(System.out::println);
-        System.out.println("-".repeat(120));
-        System.out.println("Total employees: " + employeeList.size());
-    }
+//    public void displayEmployees(List<Employee<T>> employeeList) {
+//        if (employeeList.isEmpty()) {
+//            System.out.println("No employees found.");
+//            return;
+//        }
+//
+//        System.out.println("\nEMPLOYEE LIST:");
+//        System.out.println("-".repeat(120));
+//        employeeList.forEach(System.out::println);
+//        System.out.println("-".repeat(120));
+//        System.out.println("Total employees: " + employeeList.size());
+//    }
 
 
     //======================= SALARY MANAGEMENT================================
@@ -310,7 +310,7 @@ public class EmployeeDatabase<T> {
         System.out.println("=".repeat(80));
         System.out.println("Total employees: " + employeeList.size());
 
-        // Add summary statistics if showing all employees
+        // Add summary statistics of showing all employees
         if (employeeList.size() == employees.size()) {
             Map<String, Double> stats = getSalaryStatistics();
             System.out.printf("Salary Summary: Min = $%,.2f | Max = $%,.2f | Avg = $%,.2f%n",

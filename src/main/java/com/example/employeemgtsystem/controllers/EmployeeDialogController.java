@@ -137,28 +137,6 @@ public class EmployeeDialogController {
             showAlert("Error", e.getMessage());
         }
     }
-//    private void saveEmployee() {
-//        try {
-//            Employee<Integer> employee = new Employee<>(
-//                    Integer.parseInt(idField.getText()),
-//                    nameField.getText(),
-//                    deptField.getValue(),
-//                    Double.parseDouble(salaryField.getText()),
-//                    Double.parseDouble(ratingField.getText()),
-//                    Integer.parseInt(expField.getText()),
-//                    activeField.isSelected()
-//            );
-//
-//            if (employeeToEdit != null) {
-//                employeeDatabase.removeEmployee(employeeToEdit.getEmployeeId());
-//            }
-//
-//            employeeDatabase.addEmployee(employee);
-//            mainController.refreshEmployeeTable();
-//        } catch (Exception e) {
-//            showAlert("Error", e.getMessage());
-//        }
-//    }
 
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
