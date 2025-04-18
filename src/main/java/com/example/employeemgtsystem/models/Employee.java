@@ -111,27 +111,18 @@ public class Employee<T> implements Comparable<Employee<T>> {
     public DoubleProperty salaryProperty() { return salary; }
     public double getSalary() { return salary.get(); }
     public void setSalary(double salary) {
-        if (salary < 0) {
-            throw new IllegalArgumentException("Salary cannot be negative");
-        }
         this.salary.set(salary);
     }
 
     public DoubleProperty performanceRatingProperty() { return performanceRating; }
     public double getPerformanceRating() { return performanceRating.get(); }
     public void setPerformanceRating(double performanceRating) {
-        if (performanceRating < 0 || performanceRating > 5) {
-            throw new IllegalArgumentException("Performance rating must be between 0 and 5");
-        }
         this.performanceRating.set(performanceRating);
     }
 
     public IntegerProperty yearsOfExperienceProperty() { return yearsOfExperience; }
     public int getYearsOfExperience() { return yearsOfExperience.get(); }
     public void setYearsOfExperience(int yearsOfExperience) {
-        if (yearsOfExperience < 0) {
-            throw new IllegalArgumentException("Years of experience cannot be negative");
-        }
         this.yearsOfExperience.set(yearsOfExperience);
     }
 
