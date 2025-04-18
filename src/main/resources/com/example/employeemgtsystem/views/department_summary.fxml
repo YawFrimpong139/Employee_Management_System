@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17.0.2-ea"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.employeemgtsystem.controllers.DepartmentSummaryController"
+      spacing="10" style="-fx-padding: 20;">
+
+    <Label text="Department Summary Report" styleClass="report-title"/>
+
+    <TableView fx:id="summaryTable" style="-fx-padding: 5;">
+        <columns>
+            <TableColumn text="Department" fx:id="deptCol" styleClass="table-column"/>
+            <TableColumn text="Employees" fx:id="countCol" styleClass="table-column"/>
+            <TableColumn text="Avg Salary" fx:id="avgSalaryCol" styleClass="table-column"/>
+            <TableColumn text="Avg Rating" fx:id="avgRatingCol" styleClass="table-column"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="Close" onAction="#handleClose" styleClass="action-button"/>
+    </HBox>
+</VBox>

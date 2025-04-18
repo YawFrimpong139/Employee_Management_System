@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="436.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.employeemgtsystem.controllers.LoginController">
+    <children>
+        <BorderPane>
+            <right>
+                <AnchorPane prefHeight="436.0" prefWidth="603.0" styleClass="other-form" stylesheets="@../design.css" BorderPane.alignment="CENTER">
+                    <children>
+                        <Text fill="WHITE" layoutX="193.0" layoutY="251.0" strokeType="OUTSIDE" strokeWidth="0.0" text="FRIMP-TECH LIMITED">
+                            <font>
+                                <Font size="23.0" />
+                            </font>
+                        </Text>
+                        <Text fill="WHITE" layoutX="155.0" layoutY="292.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Employee Management System">
+                            <font>
+                                <Font size="21.0" />
+                            </font>
+                        </Text>
+                        <Button fx:id="getStartedBtn" layoutX="211.0" layoutY="308.0" mnemonicParsing="false" onAction="#handleGetStarted" prefHeight="62.0" prefWidth="182.0" styleClass="getStartedBtn" stylesheets="../design.css" text="Get Started" textFill="#8fe48a">
+                            <font>
+                                <Font size="17.0" />
+                            </font>
+                        </Button>
+                        <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" layoutX="227.0" layoutY="58.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+
+                                <Image url="@../img/team-building_8163723.png" />
+                            </image>
+                        </ImageView>
+                    </children>
+                </AnchorPane>
+            </right>
+        </BorderPane>
+    </children>
+</StackPane>

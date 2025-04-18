@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17.0.2-ea"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.employeemgtsystem.controllers.MainController">
+
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <Menu text="File">
+                <MenuItem text="Exit" onAction="#handleExit" />
+            </Menu>
+            <Menu text="Employee">
+                <MenuItem text="Add New Employee" onAction="#handleAddEmployee" />
+                <MenuItem text="Refresh" onAction="#handleRefresh" />
+            </Menu>
+            <Menu text="Reports">
+                <MenuItem text="Department Summary" onAction="#handleDepartmentSummary" />
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <center>
+        <VBox spacing="10" style="-fx-padding: 10;">
+            <!-- Filter Controls -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Filter:" styleClass="filter-label"/>
+                <ComboBox fx:id="departmentFilter" promptText="All Departments"
+                          onAction="#handleDepartmentFilter"/>
+                <Label text="Search:" styleClass="filter-label"/>
+                <TextField fx:id="searchField" promptText="Search by name..."
+                           onKeyReleased="#handleSearch"/>
+            </HBox>
+
+            <!-- Sort Controls -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Sort by:" styleClass="filter-label"/>
+                <fx:define>
+                    <ToggleGroup fx:id="sortGroup"/>
+                </fx:define>
+                <RadioButton text="Default" toggleGroup="$sortGroup" selected="true"
+                             onAction="#handleSortDefault"/>
+                <RadioButton text="Salary" toggleGroup="$sortGroup" onAction="#handleSortSalary"/>
+                <RadioButton text="Performance" toggleGroup="$sortGroup"
+                             onAction="#handleSortPerformance"/>
+            </HBox>
+
+            <!-- Employee Table -->
+            <TableView fx:id="employeeTable" style="-fx-padding: 5;">
+                <columns>
+                    <TableColumn text="ID" fx:id="idCol" styleClass="table-column"/>
+                    <TableColumn text="Name" fx:id="nameCol" styleClass="table-column"/>
+                    <TableColumn text="Department" fx:id="deptCol" styleClass="table-column"/>
+                    <TableColumn text="Salary" fx:id="salaryCol" styleClass="table-column"/>
+                    <TableColumn text="Rating" fx:id="ratingCol" styleClass="table-column"/>
+                    <TableColumn text="Experience" fx:id="expCol" styleClass="table-column"/>
+                    <TableColumn text="Status" fx:id="statusCol" styleClass="table-column"/>
+                </columns>
+            </TableView>
+
+            <!-- Action Buttons -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Add Employee" onAction="#handleAddEmployee" styleClass="action-button"/>
+                <Button text="Edit Selected" onAction="#handleEditEmployee" styleClass="action-button"/>
+                <Button text="Delete Selected" onAction="#handleDeleteEmployee" styleClass="delete-button"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <bottom>
+        <HBox style="-fx-background-color: #f0f0f0; -fx-padding: 5 10;">
+            <Label fx:id="statusLabel" text="Total employees: 0"/>
+        </HBox>
+    </bottom>
+</BorderPane>
