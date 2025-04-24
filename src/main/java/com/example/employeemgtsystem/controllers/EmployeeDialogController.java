@@ -47,7 +47,7 @@ public class EmployeeDialogController {
 
     @FXML
     public void initialize() {
-        deptField.getItems().addAll("IT", "HR", "Finance", "Marketing", "Operations");
+        deptField.getItems().addAll("IT", "HR", "Finance", "Marketing", "Operations", "Sales");
 
 
     }

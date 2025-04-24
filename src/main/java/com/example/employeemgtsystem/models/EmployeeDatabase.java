@@ -7,13 +7,22 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.logging.Logger;
+
 
 
 public class EmployeeDatabase<T> {
 
+
+
+    private static final Logger logger = Logger.getLogger(EmployeeDatabase.class.getName());
     private final Map<T, Employee<T>> employees;
     private final String idNotNull = "Employee ID cannot be Null";
 
+
+    private static final Set<String> VALID_DEPARTMENTS = Set.of(
+            "HR", "Finance", "IT", "Marketing", "Sales", "Operations"
+    );
     public EmployeeDatabase() {
         this.employees = new HashMap<>();
     }
@@ -22,24 +31,62 @@ public class EmployeeDatabase<T> {
 
     // This is the method to add Employee to our hash map
     public void addEmployee(Employee<T> employee) {
-        Objects.requireNonNull(employee, "Employee cannot be null");   //"Employee cannot be null"
+        try{
+            Objects.requireNonNull(employee, "Employee cannot be null");   //"Employee cannot be null"
 
-        if(employees.containsKey(employee.getEmployeeId())) {
-            throw new IllegalArgumentException("Employee with ID " + employee.getEmployeeId() + " already exist");
+            if(employees.containsKey(employee.getEmployeeId())) {
+                throw new IllegalArgumentException("Employee with ID " + employee.getEmployeeId() + " already exist");
+            }
+            employees.put(employee.getEmployeeId(), employee);
+        }catch(RuntimeException e){
+            logger.severe("Failed to add employee: " + e.getMessage());
+            throw e;
+
         }
-        employees.put(employee.getEmployeeId(), employee);
+    }
+
+    private void validateEmployeeData(Employee<T> employee) throws InvalidNameException, InvalidSalaryException, InvalidDepartmentException {
+        //Validate the name
+        if(employee.getName() == null || employee.getName().trim().isEmpty()){
+            throw new InvalidNameException("Employee name cannot be empty or null");
+        }
+
+        //Validate Employee Salary
+        if(employee.getSalary() < 0){
+            throw new InvalidSalaryException("Employee Salary cannot be negative" + employee.getSalary());
+        }
+
+        //Validate Departments
+        if(!VALID_DEPARTMENTS.contains(employee.getDepartment())){
+            throw new InvalidDepartmentException(
+                    "Invalid department: " + employee.getDepartment() +
+                            "Valid departments are " + VALID_DEPARTMENTS
+            );
+        }
+
+        //Validate Performance Rating
+        if (employee.getPerformanceRating() < 0 || employee.getPerformanceRating() > 10) {
+            throw new IllegalArgumentException(
+                    "Performance rating must be between 0 and 10: " + employee.getPerformanceRating()
+            );
+        }
     }
 
     //This is also the method to read our data from the hash map
     public Employee<T> getEmployee(T employeeId){
-        Objects.requireNonNull(employeeId, idNotNull);
+        try{
+            Objects.requireNonNull(employeeId, idNotNull);
 
-        Employee<T> employee = employees.get(employeeId);
+            Employee<T> employee = employees.get(employeeId);
 
-        if(employee == null) {
-            throw new NoSuchElementException("Employee with ID " + employeeId + " cannot be found");
+            if(employee == null) {
+                throw new NoSuchElementException("Employee with ID " + employeeId + " cannot be found");
+            }
+            return employee;
+        }catch(RuntimeException e){
+            logger.warning("Error retrieving employee: " + e.getMessage());
+            throw e;
         }
-        return employee;
 
     }
 
@@ -51,29 +98,56 @@ public class EmployeeDatabase<T> {
     }
 
 
-    public void UpdateEmployeeDetails(T employeeId, String field, Object newValue) {
-        Objects.requireNonNull(employeeId, idNotNull);   //"Employee ID cannot be null"
-        Objects.requireNonNull(field, "Field name cannot be null");
-
-        Employee<T> employee = getEmployee(employeeId);
+    public void UpdateEmployeeDetails(T employeeId, String field, Object newValue) throws InvalidNameException, InvalidSalaryException, InvalidDepartmentException{
 
         try {
+            Objects.requireNonNull(employeeId, idNotNull);   //"Employee ID cannot be null"
+            Objects.requireNonNull(field, "Field name cannot be null");
+            Employee<T> employee = getEmployee(employeeId);
+
 
             switch (field.toLowerCase()) {
                 case "name":
+                    if (newValue == null || ((String) newValue).trim().isEmpty()) {
+                        throw new InvalidNameException("Employee name cannot be empty or null");
+                    }
                     employee.setName((String) newValue);
                     break;
+
                 case "department":
-                    employee.setDepartment((String) newValue);
+                    String dept = (String) newValue;
+                    if (!VALID_DEPARTMENTS.contains(dept)) {
+                        throw new InvalidDepartmentException(
+                                "Invalid department: " + dept +
+                                        ". Valid departments are: " + VALID_DEPARTMENTS
+                        );
+                    }
+                    employee.setDepartment(dept);
                     break;
                 case "salary":
-                    employee.setSalary((double) newValue);
+                    if (!(newValue instanceof Number)) {
+                        throw new IllegalArgumentException("Salary must be a number");
+                    }
+                    double salary = ((Number) newValue).doubleValue();
+                    if (salary < 0) {
+                        throw new InvalidSalaryException("Salary cannot be negative: " + salary);
+                    }
+                    employee.setSalary(salary);
                     break;
+
                 case "performancerating":
-                    employee.setPerformanceRating((double) newValue);
+                    double rating = (double) newValue;
+                    if (rating < 0 || rating > 10) {
+                        throw new IllegalArgumentException("Performance rating must be between 0 and 10");
+                    }
+                    employee.setPerformanceRating(rating);
                     break;
                 case "yearsofexperience":
-                    employee.setYearsOfExperience((int) newValue);
+                    int years = (int) newValue;
+                    if (years < 0) {
+                        throw new IllegalArgumentException("Years of experience cannot be negative");
+                    }
+                    employee.setYearsOfExperience(years);
                     break;
                 case "isactive":
                     employee.setActive((boolean) newValue);
@@ -83,19 +157,31 @@ public class EmployeeDatabase<T> {
 
             }
         } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Invalid type for field " + field, e);
+            String errorMsg = "Invalid type for field " + field + ": " + e.getMessage();
+            logger.severe(errorMsg);
+            throw new IllegalArgumentException(errorMsg, e);
+        }catch(RuntimeException e){
+            logger.severe("Error updating employee: " + e.getMessage());
+            throw e;
         }
     }
 
 
     //This is the method to remove an employee
-    public void removeEmployee(T employeeId) {
-        Objects.requireNonNull(employeeId, idNotNull);
+    public void removeEmployee(T employeeId) throws EmployeeNotFoundException{
 
-        if(!employees.containsKey(employeeId)) {
-            throw new NoSuchElementException("Employee with ID " + employeeId);
+        try {
+            Objects.requireNonNull(employeeId, idNotNull);
+
+            if (!employees.containsKey(employeeId)) {
+                throw new EmployeeNotFoundException("Employee with ID " + employeeId + " not found");
+            }
+            employees.remove(employeeId);
+
+        } catch (RuntimeException e) {
+            logger.warning("Error removing employee: " + e.getMessage());
+            throw e;
         }
-        employees.remove(employeeId);
 
     }
 
@@ -104,24 +190,58 @@ public class EmployeeDatabase<T> {
 
     // Search by department
 
-    public List<Employee<T>> searchEmployeesByDepartment(String department){
-        return employees.values().stream()
-                .filter(e -> e.getDepartment().equalsIgnoreCase(department))
-                .collect(Collectors.toList());
+    public List<Employee<T>> searchEmployeesByDepartment(String department) throws InvalidDepartmentException{
+        try {
+            Objects.requireNonNull(department, "Department cannot be null");
+
+            if (!VALID_DEPARTMENTS.contains(department)) {
+                throw new InvalidDepartmentException(
+                        "Invalid department: " + department +
+                                ". Valid departments are: " + VALID_DEPARTMENTS
+                );
+            }
+
+            return employees.values().stream()
+                    .filter(e -> e.getDepartment().equalsIgnoreCase(department))
+                    .collect(Collectors.toList());
+
+        } catch (RuntimeException e) {
+            logger.warning("Error searching by department: " + e.getMessage());
+            throw e;
+        }
     }
 
 
     //Search by Name
 
-    public List<Employee<T>> searchEmployeesByName(String namePart){
-        return employees.values().stream()
-                .filter(e -> e.getName().toLowerCase().contains(namePart.toLowerCase()))
-                .collect(Collectors.toList());
+    public List<Employee<T>> searchEmployeesByName(String namePart) throws InvalidNameException{
+//        return employees.values().stream()
+//                .filter(e -> e.getName().toLowerCase().contains(namePart.toLowerCase()))
+//                .collect(Collectors.toList());
+        try{
+            Objects.requireNonNull(namePart, "Name cannot be null");
+
+            if(namePart.trim().isEmpty()){
+                throw new InvalidNameException("Name search term cannot be empty or whitespace");
+            }
+
+            return employees.values().stream()
+                    .filter(employee -> {
+                        String employeeName = Objects.requireNonNullElse(employee.getName(), "");
+                        return employeeName.toLowerCase()
+                                .contains(namePart.toLowerCase());
+                    })
+                    .collect(Collectors.toList());
+        }catch(RuntimeException e){
+            logger.severe("Name search failed for term '" + namePart + "': " + e.getMessage());
+            throw e;
+        }
     }
 
     //Search by Performance Rating
 
     public List<Employee<T>> getHighPerformers(double minRate){
+
         return employees.values().stream()
                 .filter(e -> e.getPerformanceRating() >= minRate)
                 .collect(Collectors.toList());
@@ -188,33 +308,42 @@ public class EmployeeDatabase<T> {
 
 
 
-    // ========== DISPLAY METHODS ==========
-
-//    public void displayEmployees(List<Employee<T>> employeeList) {
-//        if (employeeList.isEmpty()) {
-//            System.out.println("No employees found.");
-//            return;
-//        }
-//
-//        System.out.println("\nEMPLOYEE LIST:");
-//        System.out.println("-".repeat(120));
-//        employeeList.forEach(System.out::println);
-//        System.out.println("-".repeat(120));
-//        System.out.println("Total employees: " + employeeList.size());
-//    }
-
-
     //======================= SALARY MANAGEMENT================================
 
     // Method to give a percentage raise when an employee meets the minimum performance rating
     public List<Employee<T>> salaryRaiseToHighPerformers(double minRating, double raisePercentage){
 
-        List<Employee<T>> employeesWhoGotRaise = employees.values().stream()
-                .filter(e -> e.getPerformanceRating() >= minRating)
-                .peek(e -> e.setSalary(e.getSalary() * (1 + raisePercentage / 100)))
-                .collect(Collectors.toList());
+        try {
+            if (minRating < 0 || minRating > 10) {
+                throw new IllegalArgumentException("Minimum rating must be between 0 and 10");
+            }
+            if (raisePercentage < 0) {
+                throw new IllegalArgumentException("Raise percentage cannot be negative");
+            }
 
-        return employeesWhoGotRaise;
+            return employees.values().stream()
+                    .filter(e -> e.getPerformanceRating() >= minRating)
+                    .peek(e -> {
+                        try {
+                            double newSalary = e.getSalary() * (1 + raisePercentage / 100);
+                            if (newSalary < 0) {
+                                throw new InvalidSalaryException("Calculated salary is negative");
+                            }
+                            e.setSalary(newSalary);
+                        } catch (RuntimeException ex) {
+                            logger.severe("Error applying salary raise: " + ex.getMessage());
+                            throw ex;
+                        } catch (InvalidSalaryException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    })
+                    .collect(Collectors.toList());
+
+        } catch (RuntimeException e) {
+            logger.severe("Error in salary raise process: " + e.getMessage());
+            throw e;
+        }
+
     }
 
 

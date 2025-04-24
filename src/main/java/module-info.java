@@ -4,6 +4,8 @@ module com.example.employeemgtsystem {
 
     requires com.dlsc.formsfx;
 
+    requires java.logging;
+
     opens com.example.employeemgtsystem to javafx.fxml;
     opens com.example.employeemgtsystem.models to javafx.base;
     exports com.example.employeemgtsystem;
