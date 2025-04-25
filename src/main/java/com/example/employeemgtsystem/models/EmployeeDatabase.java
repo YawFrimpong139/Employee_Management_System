@@ -73,20 +73,18 @@ public class EmployeeDatabase<T> {
     }
 
     //This is also the method to read our data from the hash map
-    public Employee<T> getEmployee(T employeeId){
-        try{
-            Objects.requireNonNull(employeeId, idNotNull);
+    public Employee<T> getEmployee(T employeeId) throws EmployeeNotFoundException{
 
-            Employee<T> employee = employees.get(employeeId);
+        Objects.requireNonNull(employeeId, "Employee ID cannot be null");
 
-            if(employee == null) {
-                throw new NoSuchElementException("Employee with ID " + employeeId + " cannot be found");
-            }
-            return employee;
-        }catch(RuntimeException e){
-            logger.warning("Error retrieving employee: " + e.getMessage());
-            throw e;
+        Employee<T> employee = employees.get(employeeId);
+        if (employee == null) {
+            String errorMessage = "Employee with ID " + employeeId + " cannot be found";
+            logger.warning(errorMessage);
+            throw new EmployeeNotFoundException(errorMessage);
         }
+        return employee;
+
 
     }
 
@@ -98,7 +96,7 @@ public class EmployeeDatabase<T> {
     }
 
 
-    public void UpdateEmployeeDetails(T employeeId, String field, Object newValue) throws InvalidNameException, InvalidSalaryException, InvalidDepartmentException{
+    public void UpdateEmployeeDetails(T employeeId, String field, Object newValue) throws InvalidNameException, InvalidSalaryException, InvalidDepartmentException, EmployeeNotFoundException{
 
         try {
             Objects.requireNonNull(employeeId, idNotNull);   //"Employee ID cannot be null"
@@ -168,19 +166,19 @@ public class EmployeeDatabase<T> {
 
 
     //This is the method to remove an employee
-    public void removeEmployee(T employeeId) throws EmployeeNotFoundException{
+    public Employee<T> removeEmployee(T employeeId) throws EmployeeNotFoundException{
+
+        Objects.requireNonNull(employeeId, "Employee ID cannot be null");
 
         try {
-            Objects.requireNonNull(employeeId, idNotNull);
-
-            if (!employees.containsKey(employeeId)) {
-                throw new EmployeeNotFoundException("Employee with ID " + employeeId + " not found");
-            }
+            // This will throw NoSuchElementException if employee not found
+            Employee<T> employee = getEmployee(employeeId);
             employees.remove(employeeId);
-
-        } catch (RuntimeException e) {
-            logger.warning("Error removing employee: " + e.getMessage());
-            throw e;
+            return employee;
+        } catch (NoSuchElementException e) {
+            String errorMessage = "Employee with ID " + employeeId + " not found";
+            logger.warning(errorMessage);
+            throw new EmployeeNotFoundException(errorMessage, e);
         }
 
     }
@@ -249,9 +247,30 @@ public class EmployeeDatabase<T> {
 
     // Search Employees by Salary range
     public List<Employee<T>> getEmployeesBySalaryRange(double minSalary, double maxSalary){
-        return employees.values().stream()
-                .filter(e -> e.getSalary() >= minSalary && e.getSalary() <= maxSalary)
-                .collect(Collectors.toList());
+        try {
+            if (minSalary < 0 || maxSalary < 0) {
+                throw new IllegalArgumentException("Salary values cannot be negative");
+            }
+            if (minSalary > maxSalary) {
+                throw new IllegalArgumentException("Minimum salary cannot be greater than maximum salary");
+            }
+
+            if (employees.isEmpty()) {
+                logger.info("Attempted to search salary range in empty employee database");
+                return new ArrayList<>();
+            }
+
+            return employees.values().stream()
+                    .filter(Objects::nonNull) // Filter out null employees
+                    .filter(e -> {
+                        Double salary = e.getSalary();
+                        return salary != null && salary >= minSalary && salary <= maxSalary;
+                    })
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.severe("Error searching by salary range: " + e.getMessage());
+            throw new RuntimeException("Salary range search failed", e);
+        }
     }
 
     //Custom filtering using Predicate
@@ -275,35 +294,84 @@ public class EmployeeDatabase<T> {
     // Sorting using natural ordering(Years of Experience)
 
     public List<Employee<T>> sortByYearsOfExperience(){
-        return employees.values().stream()
-                .sorted()
-                .collect(Collectors.toList());
+        try {
+            if (employees.isEmpty()) {
+                logger.info("Attempted to sort empty employee list");
+                return new ArrayList<>();
+            }
+
+            return employees.values().stream()
+                    .filter(Objects::nonNull) // Remove null employees
+                    .sorted(Comparator.nullsLast(Comparator.naturalOrder()))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.severe("Error sorting by years of experience: " + e.getMessage());
+            throw new RuntimeException("Sorting failed", e);
+        }
+//        return employees.values().stream()
+//                .sorted()
+//                .collect(Collectors.toList());
     }
 
 
     // Sorting by Salary (Highest first)
 
     public List<Employee<T>> sortBySalary(){
-        return employees.values().stream()
-                .sorted(new EmployeeSalaryComparator<T>())
-                .collect(Collectors.toList());
+        try {
+            if (employees.isEmpty()) {
+                logger.info("Attempted to sort empty employee list by salary");
+                return new ArrayList<>();
+            }
+
+            return employees.values().stream()
+                    .filter(Objects::nonNull) // Remove null employees
+                    .sorted(new EmployeeSalaryComparator<>())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.severe("Error sorting by salary: " + e.getMessage());
+            throw new RuntimeException("Salary sorting failed", e);
+        }
     }
 
     // Sorting by Performance Rating
 
     public List<Employee<T>> sortByPerformance(){
-        return employees.values().stream()
-                .sorted(new EmployeePerformanceComparator<T>())
-                .collect(Collectors.toList());
+        try {
+            if (employees.isEmpty()) {
+                logger.info("Attempted to sort empty employee list by performance");
+                return new ArrayList<>();
+            }
+
+            return employees.values().stream()
+                    .filter(Objects::nonNull) // Remove null employees
+                    .sorted(new EmployeePerformanceComparator<>())
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.severe("Error sorting by performance: " + e.getMessage());
+            throw new RuntimeException("Performance sorting failed", e);
+        }
     }
 
 
     // Custom Sorting with Comparator
 
     public List<Employee<T>> sortEmployees(Comparator<Employee<T>> comparator){
-        return employees.values().stream()
-                .sorted(comparator)
-                .collect(Collectors.toList());
+        Objects.requireNonNull(comparator, "Comparator cannot be null");
+
+        try {
+            if (employees.isEmpty()) {
+                logger.info("Attempted to sort empty employee list with custom comparator");
+                return new ArrayList<>();
+            }
+
+            return employees.values().stream()
+                    .filter(Objects::nonNull) // Remove null employees
+                    .sorted(Comparator.nullsLast(comparator))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.severe("Error in custom sorting: " + e.getMessage());
+            throw new RuntimeException("Custom sorting failed", e);
+        }
     }
 
 

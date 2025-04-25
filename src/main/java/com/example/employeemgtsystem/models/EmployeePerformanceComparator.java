@@ -7,13 +7,38 @@ public class EmployeePerformanceComparator<T> implements Comparator<Employee<T>>
 
     @Override
     public int compare(Employee<T> o1, Employee<T> o2) {
-        // Sort by highest performance first
-        int ratingCompare = Double.compare(o2.getPerformanceRating(), o1.getPerformanceRating());
+        // Handle null employees
+        if (o1 == null && o2 == null) return 0;
+        if (o1 == null) return 1;
+        if (o2 == null) return -1;
 
-        //If ratings are equal, sort by experience
-        return ratingCompare != 0 ? ratingCompare :
-                Integer.compare(o2.getYearsOfExperience(), o1.getYearsOfExperience());
+        // Handle null ratings/experience
+        Double rating1 = o1.getPerformanceRating();
+        Double rating2 = o2.getPerformanceRating();
+        Integer exp1 = o1.getYearsOfExperience();
+        Integer exp2 = o2.getYearsOfExperience();
 
+        // Compare ratings with null checks
+        int ratingCompare = 0;
+        if (rating1 != null && rating2 != null) {
+            ratingCompare = Double.compare(rating2, rating1);
+        } else if (rating1 == null && rating2 != null) {
+            ratingCompare = 1;
+        } else if (rating1 != null && rating2 == null) {
+            ratingCompare = -1;
+        }
+
+        if (ratingCompare != 0) return ratingCompare;
+
+        // Compare experience with null checks
+        if (exp1 != null && exp2 != null) {
+            return Integer.compare(exp2, exp1);
+        } else if (exp1 == null && exp2 != null) {
+            return 1;
+        } else if (exp1 != null && exp2 == null) {
+            return -1;
+        }
+        return 0;
     }
 
 }
