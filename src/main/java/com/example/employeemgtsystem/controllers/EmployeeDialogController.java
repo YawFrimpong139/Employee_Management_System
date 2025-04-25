@@ -21,7 +21,6 @@ public class EmployeeDialogController {
     private EmployeeDatabase<Integer> employeeDatabase;
     private MainController mainController;
     private Employee<Integer> employeeToEdit;
-    private DialogPane dialogPane;
 
     public void setEmployeeDatabase(EmployeeDatabase<Integer> employeeDatabase) {
         this.employeeDatabase = employeeDatabase;
@@ -47,13 +46,12 @@ public class EmployeeDialogController {
 
     @FXML
     public void initialize() {
-        deptField.getItems().addAll("IT", "HR", "Finance", "Marketing", "Operations", "Sales");
+        deptField.getItems().addAll("IT", "HR", "Finance", "Marketing", "Operations", "Engineering");
 
 
     }
 
     public void setupDialogPane(DialogPane dialogPane) {
-        this.dialogPane = dialogPane;
 
         // Set up save button
         Button saveButton = (Button) dialogPane.lookupButton(saveButtonType);
@@ -80,9 +78,9 @@ public class EmployeeDialogController {
         }
     }
 
-    private void handleCancelAction(ActionEvent event) {
-        // Just let the dialog close (default behavior)
-    }
+//    private void handleCancelAction(ActionEvent event) {
+//        // Just let the dialog close (default behavior)
+//    }
 
     private boolean validateInput() {
         if (nameField.getText().isEmpty() || deptField.getValue() == null) {
