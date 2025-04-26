@@ -6,17 +6,17 @@ import java.util.Comparator;
 public class EmployeePerformanceComparator<T> implements Comparator<Employee<T>> {
 
     @Override
-    public int compare(Employee<T> o1, Employee<T> o2) {
+    public int compare(Employee<T> emp1, Employee<T> emp2) {
         // Handle null employees
-        if (o1 == null && o2 == null) return 0;
-        if (o1 == null) return 1;
-        if (o2 == null) return -1;
+        if (emp1 == null && emp2 == null) return 0;
+        if (emp1 == null) return 1;
+        if (emp2 == null) return -1;
 
         // Handle null ratings/experience
-        Double rating1 = o1.getPerformanceRating();
-        Double rating2 = o2.getPerformanceRating();
-        Integer exp1 = o1.getYearsOfExperience();
-        Integer exp2 = o2.getYearsOfExperience();
+        Double rating1 = emp1.getPerformanceRating();
+        Double rating2 = emp2.getPerformanceRating();
+        Integer exp1 = emp1.getYearsOfExperience();
+        Integer exp2 = emp2.getYearsOfExperience();
 
         // Compare ratings with null checks
         int ratingCompare = 0;

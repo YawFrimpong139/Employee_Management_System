@@ -47,6 +47,15 @@ class EmployeeDatabaseTest {
         assertThrows(IllegalArgumentException.class, () -> database.addEmployee(employee1));
     }
 
+//    @Test
+//    public void testAddEmployee_SalaryNotModified() {
+//
+//
+//        database.addEmployee(employee1);  // Debug from here
+//
+//        assertEquals(45000, employee1.getSalary());  // Will fail due to the bug
+//    }
+
     @Test
     void addEmployee_shouldThrowWhenEmployeeIsNull() {
         assertThrows(NullPointerException.class, () -> database.addEmployee(null));

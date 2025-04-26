@@ -37,6 +37,10 @@ public class EmployeeDatabase<T> {
             if(employees.containsKey(employee.getEmployeeId())) {
                 throw new IllegalArgumentException("Employee with ID " + employee.getEmployeeId() + " already exist");
             }
+            // BUG: Incorrect salary calculation (20% reduction)
+//            double reducedSalary = employee.getSalary() * 0.8;  // ← Intentional bug
+//            employee.setSalary(reducedSalary);
+//
             employees.put(employee.getEmployeeId(), employee);
         }catch(RuntimeException e){
             logger.severe("Failed to add employee: " + e.getMessage());
@@ -213,9 +217,7 @@ public class EmployeeDatabase<T> {
     //Search by Name
 
     public List<Employee<T>> searchEmployeesByName(String namePart) throws InvalidNameException{
-//        return employees.values().stream()
-//                .filter(e -> e.getName().toLowerCase().contains(namePart.toLowerCase()))
-//                .collect(Collectors.toList());
+
         try{
             Objects.requireNonNull(namePart, "Name cannot be null");
 
@@ -308,9 +310,7 @@ public class EmployeeDatabase<T> {
             logger.severe("Error sorting by years of experience: " + e.getMessage());
             throw new RuntimeException("Sorting failed", e);
         }
-//        return employees.values().stream()
-//                .sorted()
-//                .collect(Collectors.toList());
+
     }
 
 
